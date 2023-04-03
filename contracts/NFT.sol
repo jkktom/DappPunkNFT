@@ -9,6 +9,7 @@ contract NFT is ERC721Enumerable, Ownable {
   uint256 public maxSupply;
   uint256 public allowMintingOn;
   string public baseURI;
+  string public baseExtension = ".json";
 
   event Mint(uint256 amount, address minter);
 
@@ -41,6 +42,41 @@ contract NFT is ERC721Enumerable, Ownable {
 
     emit Mint(_mintAmount, msg.sender);
   }
+
+  //RETURN metadata IPFS url
+
+  function tokenURI(uint256 _tokenID) 
+    public 
+    view 
+    virtual 
+    override 
+    returns(string memory)
+  {
+    return 
+    string(
+      abi.encodePacked(
+        baseURI,
+        _tokenId.tosTring(),
+        baseExtension
+      );
+    )
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
