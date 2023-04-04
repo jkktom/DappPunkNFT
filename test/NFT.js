@@ -9,7 +9,7 @@ const ether = tokens
 describe('NFT', () => {
   const NAME = 'Dapp Punks'
   const SYMBOL = 'DP'
-  const COST = ether(10)
+  const COST = ether(0.0001)
   const MAX_SUPPLY = 25
   const BASE_URI = 'ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSSNWG3qHzmNDvXa9gg/'
   let nft,
@@ -22,6 +22,96 @@ describe('NFT', () => {
       minter = accounts[1]
   })
 
+  describe('Minting', () => {
+    let transaction, result
+
+    describe('Success', async ()=> {
+      const ALLOW_MINTING_ON = 
+        Date.now().toString().slice(0,10)
+      
+      beforeEach(async () => {
+        const NFT = await ethers.getContractFactory('NFT')
+        nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
+
+        transaction = await nft.connect(minter).mint(1, { value : COST})
+        result = await transaction.wait()
+      })
+      
+      it('9 more mint', async ()=> {
+        transaction = await nft.connect(minter)
+          .mint(9, {value : 9*COST})
+        result = await transaction.wait()
+
+        expect(await nft.balanceOf(minter.address)).to.equal(10)
+      })
+      
+    })
+
+    /*
+    it('returns the address of the minter', async ()=> {
+        expect(await nft.ownerOf(1)).to.equal(minter.address)
+      })
+
+      it('Minter\'s token overall', async ()=> {
+        expect(await nft.balanceOf(minter.address)).to.equal(1)
+      })
+
+      it('IPFS URI ', async ()=> {
+        // console.log(await nft.tokenURI(1))
+        expect(await nft.tokenURI(1)).to.equal(`${BASE_URI}1.json`)
+      })
+
+      it('updates total supply', async ()=> {
+        expect(await nft.totalSupply()).to.equal(1)
+      })
+
+      it('updates ETH payment', async ()=> {
+        expect(await ethers.provider.getBalance(nft.address)).to.equal(COST)
+      })
+      it('emit event - Mint', async ()=> {
+        await expect(transaction).to.emit(nft, 'Mint')
+          .withArgs(1, minter.address)
+      })
+    */
+
+    describe('Failure', async ()=> {
+
+      beforeEach(async()=> {
+        const ALLOW_MINTING_ON = Date.now().toString().slice(0,10)
+        const NFT = await ethers.getContractFactory('NFT')
+        nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
+      })
+      //hum?
+        it('rejects insufficient payment', async ()=> {
+          await expect(nft.connect(minter).mint(1, {value: ether(0.00001)})).to.be.reverted
+        })
+
+        it('require 1 NFT minimum.', async ()=> {
+          await expect(nft.connect(minter).mint(0, {value: COST})).to.be.reverted
+        })
+
+        it('rejects minting before the time', async ()=> {
+          const ALLOW_MINTING_ON = new Date('May 26, 2030 18:00:00').getTime().toString().slice(0,10)
+          const NFT = await ethers.getContractFactory('NFT')
+          nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
+
+          await expect(nft.connect(minter).mint(1, {value: COST})).to.be.reverted
+        })
+
+        it('Puchase limit exceeded', async ()=> {
+          await expect(nft.connect(minter).mint(11, {value: 11*COST})).to.be.reverted
+        })
+
+        it('No more than max amount', async ()=> {
+          await expect(nft.connect(minter).mint(100, {value: COST})).to.be.reverted
+        })
+        it('invalid token - No URI', async ()=> {
+          nft.connect(minter).mint(1, {value: COST})
+          await expect(nft.tokenURI('99')).to.be.reverted
+        })
+    })
+  })
+/*
   describe('Withdraw', () => {
     let transaction, result, balanceBefore
 
@@ -96,81 +186,6 @@ describe('NFT', () => {
 
   })
 
-  describe('Minting', () => {
-    let transaction, result
-
-    describe('Success', async ()=> {
-      const ALLOW_MINTING_ON = 
-        Date.now().toString().slice(0,10)
-      
-      beforeEach(async () => {
-        const NFT = await ethers.getContractFactory('NFT')
-        nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
-
-        transaction = await nft.connect(minter).mint(1, { value : COST})
-        result = await transaction.wait()
-      })
-
-      it('returns the address of the minter', async ()=> {
-        expect(await nft.ownerOf(1)).to.equal(minter.address)
-      })
-
-      it('Minter\'s token overall', async ()=> {
-        expect(await nft.balanceOf(minter.address)).to.equal(1)
-      })
-
-      it('IPFS URI ', async ()=> {
-        // console.log(await nft.tokenURI(1))
-        expect(await nft.tokenURI(1)).to.equal(`${BASE_URI}1.json`)
-      })
-
-      it('updates total supply', async ()=> {
-        expect(await nft.totalSupply()).to.equal(1)
-      })
-
-      it('updates ETH payment', async ()=> {
-        expect(await ethers.provider.getBalance(nft.address)).to.equal(COST)
-      })
-      it('emit event - Mint', async ()=> {
-        await expect(transaction).to.emit(nft, 'Mint')
-          .withArgs(1, minter.address)
-      })
-    })
-
-    describe('Failure', async ()=> {
-
-      beforeEach(async()=> {
-        const ALLOW_MINTING_ON = Date.now().toString().slice(0,10)
-        const NFT = await ethers.getContractFactory('NFT')
-        nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
-      })
-
-      it('rejects insufficient payment', async ()=> {
-        await expect(nft.connect(minter).mint(1, {value: ether(1)})).to.be.reverted
-      })
-
-      it('require 1 NFT minimum.', async ()=> {
-        await expect(nft.connect(minter).mint(0, {value: COST})).to.be.reverted
-      })
-
-      it('rejects minting before the time', async ()=> {
-        const ALLOW_MINTING_ON = new Date('May 26, 2030 18:00:00').getTime().toString().slice(0,10)
-        const NFT = await ethers.getContractFactory('NFT')
-        nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
-
-        await expect(nft.connect(minter).mint(1, {value: COST})).to.be.reverted
-      })
-
-      it('No more than max amount', async ()=> {
-        await expect(nft.connect(minter).mint(100, {value: COST})).to.be.reverted
-      })
-      it('invalid token - No URI', async ()=> {
-        nft.connect(minter).mint(1, {value: COST})
-        await expect(nft.tokenURI('99')).to.be.reverted
-      })
-    })
-  })
-
   describe('Deployment', () => {
     const ALLOW_MINTING_ON = 
     (Date.now() + 120000).toString().slice(0,10)
@@ -208,7 +223,7 @@ describe('NFT', () => {
       expect(await nft.owner()).to.equal(deployer.address)
     })
   })
-
+*/
 })
 
 

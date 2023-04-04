@@ -31,12 +31,15 @@ contract NFT is ERC721Enumerable, Ownable {
   }
 
   function mint(uint256 _mintAmount) public payable {
-    require(block.timestamp >= allowMintingOn);
-    require(_mintAmount > 0);
-    require(msg.value >= cost*_mintAmount);
+    require(block.timestamp >= allowMintingOn, "Minting not yet allowed");
+    require(_mintAmount > 0, "Invalid Mint Amount");
+    require(msg.value >= cost*_mintAmount, "Insufficient funds");
 
     uint256 supply = totalSupply();
-    require(supply + _mintAmount <= maxSupply);
+    require(supply + _mintAmount <= maxSupply, "Max Supply exceeded");
+
+    uint256 balance = balanceOf(msg.sender);
+    require(balance + _mintAmount <= 10, "Purchase limit has exceeded");
 
     for(uint256 i = 1; i <= _mintAmount; i++){
        _safeMint(msg.sender, supply +i);
@@ -74,6 +77,7 @@ contract NFT is ERC721Enumerable, Ownable {
     }
     return tokenIds;
   }
+
   //Owner functions
   function withdraw() public onlyOwner {
     uint256 balance = address(this).balance;
@@ -88,21 +92,3 @@ contract NFT is ERC721Enumerable, Ownable {
     cost = _newCost;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
