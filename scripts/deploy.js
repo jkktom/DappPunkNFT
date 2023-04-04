@@ -12,7 +12,7 @@ async function main() {
   const COST = ethers.utils.parseUnits('10','ether')
   const MAX_SUPPLY = 25
   const NFT_MINT_DATE = (Date.now() + 60000).toString().slice(0,10)
-  const IPFS_METADATA_URI = 'ipfs: //Qm02 jnDYecFhrf3asEWjyiZRX1pZSsNWG3gHZmNDvXa9gg/'
+  const IPFS_METADATA_URI = 'ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSsNWG3qHzmNDvXa9qg/'
 
   // Deploy Token
   const NFT = await hre.ethers.getContractFactory('NFT')
