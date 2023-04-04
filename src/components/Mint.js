@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BigNumber } from 'ethers'
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
@@ -12,12 +13,16 @@ const Mint = ({
 		e.preventDefault()
 		setIsWating(true)
 
+		const mintAmountInt = parseInt(mintAmount);
+
 		try{
 			const signer = await provider.getSigner()
-			const transaction = await nft.connect(signer).mint(1, {value: cost})
+			const totalValue = BigNumber.from(cost).mul(mintAmountInt);
+			const transaction = await nft.connect(signer).mint(mintAmountInt, { value: totalValue });
 			await transaction.wait()
-		}catch{
-			window.alert('User rejected or transaction reverted')
+		}catch(error){
+			console.error('Error', error);
+			window.alert('User rejected or transaction reverted');
 		}
 
 		setIsLoading(true);

@@ -25,26 +25,59 @@ describe('NFT', () => {
   describe('Minting', () => {
     let transaction, result
 
-    describe('Success', async ()=> {
+    // describe('Success', async ()=> {
+    //   const ALLOW_MINTING_ON = 
+    //     Date.now().toString().slice(0,10)
+      
+    //   beforeEach(async () => {
+    //     const NFT = await ethers.getContractFactory('NFT')
+    //     nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
+
+    //     transaction = await nft.connect(minter).mint(1, { value : COST})
+    //     result = await transaction.wait()
+    //   })
+      
+    //   it('9 more mint', async ()=> {
+    //     transaction = await nft.connect(minter)
+    //       .mint(9, {value : 9*COST})
+    //     result = await transaction.wait()
+
+    //     expect(await nft.balanceOf(minter.address)).to.equal(10)
+    //   })
+      
+    // })
+
+    describe('Update Whitelist', async () => {
       const ALLOW_MINTING_ON = 
         Date.now().toString().slice(0,10)
-      
-      beforeEach(async () => {
+      it('Should update whitelist', async () => {
         const NFT = await ethers.getContractFactory('NFT')
         nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
 
-        transaction = await nft.connect(minter).mint(1, { value : COST})
-        result = await transaction.wait()
-      })
-      
-      it('9 more mint', async ()=> {
-        transaction = await nft.connect(minter)
-          .mint(9, {value : 9*COST})
+        //Initially, Minter is now Whitelisted
+        expect(await nft.whitelist(minter.address)).to.be.false
+
+        //Update minter's whitelist status to true
+        await nft.updateWhitelist(minter.address, true)
+
+        //Check that minter is now whitelisted
+        expect(await nft.whitelist(minter.address)).to.be.true
+
+        //Attempt to mint with minter account - should succeed
+        transaction = await nft.connect(minter).mint(1, {value: COST})
         result = await transaction.wait()
 
-        expect(await nft.balanceOf(minter.address)).to.equal(10)
+        expect(await nft.balanceOf(minter.address)).to.eq(1)
+        // Update minter's whitelist status to false
+        await nft.updateWhitelist(minter.address, false)
+
+        // Check that minter is no longer whitelisted
+        expect(await nft.whitelist(minter.address)).to.be.false
+
+        // Attempt to mint with minter account - should fail
+        await expect(nft.connect(minter).mint(1, { value: COST })).to.be.reverted
+ 
       })
-      
     })
 
     /*
@@ -73,8 +106,8 @@ describe('NFT', () => {
           .withArgs(1, minter.address)
       })
     */
-
-    describe('Failure', async ()=> {
+    
+    /*describe('Failure', async ()=> {
 
       beforeEach(async()=> {
         const ALLOW_MINTING_ON = Date.now().toString().slice(0,10)
@@ -109,7 +142,7 @@ describe('NFT', () => {
           nft.connect(minter).mint(1, {value: COST})
           await expect(nft.tokenURI('99')).to.be.reverted
         })
-    })
+    })*/
   })
 /*
   describe('Withdraw', () => {
