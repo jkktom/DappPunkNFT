@@ -27,6 +27,7 @@ function App() {
   const [totalSupply, setTotalSupply] = useState(0)
   const [cost, setCost] = useState(0)
   const [balance, setBalance] = useState(0)
+  const [ownedTokenIds, setOwnedTokenIds] = useState([])
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -43,9 +44,17 @@ function App() {
     const account = ethers.utils.getAddress(accounts[0])
     setAccount(account)
 
+    //Fetch Owned Token IDs
+    const fetchOwnedTokenIds = async() => {
+      const tokenIds = await nft.walletOfOwner(account);
+      setOwnedTokenIds(tokenIds.map((tokenId) => tokenId.toString()));
+    }
+
+    await fetchOwnedTokenIds();
+
     // Fetch Countdown
     const allowMintingOn = await nft.allowMintingOn()
-    setRevealTime(allowMintingOn.toString() + '000')
+    setRevealTime(allowMintingOn.toString() *1000)
 
     //Fetch these 
     setMaxSupply(await nft.maxSupply())
@@ -75,14 +84,24 @@ function App() {
           <Row>
             <Col>
               {balance > 0 ? (
-                <div className='text-center'>
-                  <img
-                    src={`https://gateway.pinata.cloud/ipfs/QmQPEMsfd1tJnqYPbnTQCjoa8vczfsV1FmqZWgRdNQ7z3g/${balance.toString()}.png`}
-                    alt="Open Punk"
-                    width="400px"
-                    height="400px"
-                  />
-                </div>
+                <>  
+                  <div className='text-center'>
+                    <img
+                      src={`https://gateway.pinata.cloud/ipfs/QmQPEMsfd1tJnqYPbnTQCjoa8vczfsV1FmqZWgRdNQ7z3g/${balance.toString()}.png`}
+                      alt="Open Punk"
+                      width="400px"
+                      height="400px"
+                    />
+                  </div>
+                  <div>
+                    <h2>Owned NFTs</h2>
+                    <ul>
+                      {ownedTokenIds.map((tokenId) => (
+                        <li key={tokenId}>{tokenId}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </>  
               ) : (
                 <img src={preview} alt="" / > 
               )}
