@@ -6,7 +6,8 @@ import Spinner from 'react-bootstrap/Spinner';
 const Mint = ({
 	provider, nft, cost, setIsLoading
 }) => {
-	const [isWating, setIsWating] = useState(false)
+	const [isWating, setIsWating] = useState(false);
+	const [mintAmount, setMintAmount] = useState(1);
 	const mintHandler = async (e) => {
 		e.preventDefault()
 		setIsWating(true)
@@ -29,6 +30,15 @@ const Mint = ({
 			{isWating ? (
 				<Spinner animation="border" style={{display: 'block', margin: '0 auto'}}/>
 			) : (
+			<>
+				<Form.Group className="mb-3">
+					<Form.Label>Number of NFTs to mint:</Form.Label>
+					<Form.Control
+						type="number"
+						min="1"
+						value={mintAmount}
+						onChange={(e) => setMintAmount(e.target.value)} />
+				</Form.Group>
 				<Form.Group>
 					<Button 
 						variant="primary"
@@ -37,6 +47,7 @@ const Mint = ({
 						Mint
 					</Button>
 				</Form.Group>
+			</>
 			)}
 		</Form>
 	)
