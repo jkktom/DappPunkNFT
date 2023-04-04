@@ -8,6 +8,7 @@ import preview from '../preview.png';
 // Components
 import Navigation from './Navigation';
 import Data from './Data';
+import Mint from './Mint';
 import Loading from './Loading';
 
 // ABIs: Import your contract ABIs here
@@ -80,13 +81,18 @@ function App() {
               <div className='my-4 text-center'>
                 <Countdown date={parseInt(revealTime)} className='h2' />
                 <Data 
-                maxSupply={maxSupply} 
-                totalSupply={totalSupply}
-                cost={cost}
-                balance={balance}
-                 />
-                
+                  maxSupply={maxSupply} 
+                  totalSupply={totalSupply}
+                  cost={cost}
+                  balance={balance}
+                />
               </div>
+              <Mint
+                provider={provider} 
+                nft={nft}
+                cost={cost}
+                setIsLoading={setIsLoading}
+              />
             </Col>
           </Row>
         </>
