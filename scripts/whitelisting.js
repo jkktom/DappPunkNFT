@@ -34,10 +34,9 @@ async function main() {
     process.exit(1);
   });
 
-  console.log(`Whitelisting Completed. ${minter1.addrss}`);
-
-
+  return minter1.address;
 }
+main().then((address) => console.log(`Whitelisted address : ${address}`));
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
