@@ -32,6 +32,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
 
   const loadBlockchainData = async () => {
+
     // Initiate provider
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     setProvider(provider)
@@ -61,6 +62,9 @@ function App() {
     setTotalSupply(await nft.totalSupply())
     setCost(await nft.cost())
     setBalance(await nft.balanceOf(account))
+
+    //call the function first (update whitelisting)
+    // make a separate whitelist.js 
 
     setIsLoading(false)
   }
