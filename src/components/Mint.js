@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BigNumber } from 'ethers'
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 
 const Mint = ({
-	provider, nft, cost, setIsLoading
+	provider, nft, cost, setIsLoading, isWhitelisted
 }) => {
 	const [isWating, setIsWating] = useState(false);
 	const [mintAmount, setMintAmount] = useState(1);
+
 	const mintHandler = async (e) => {
 		e.preventDefault()
 		setIsWating(true)
@@ -32,27 +33,29 @@ const Mint = ({
 		<Form 
 			onSubmit={mintHandler}
 			style={{maxWidth: '450px', margin: '50px auto'}}>
-			{isWating ? (
-				<Spinner animation="border" style={{display: 'block', margin: '0 auto'}}/>
-			) : (
-			<>
-				<Form.Group className="mb-3">
-					<Form.Label>Number of NFTs to mint:</Form.Label>
-					<Form.Control
-						type="number"
-						min="1"
-						value={mintAmount}
-						onChange={(e) => setMintAmount(e.target.value)} />
-				</Form.Group>
-				<Form.Group>
-					<Button 
-						variant="primary"
-						type="submit"
-						style={{width: '100%'}}>
-						Mint
-					</Button>
-				</Form.Group>
-			</>
+			<Form.Group className="mb-3">
+				<Form.Label>Number of NFTs to mint:</Form.Label>
+				<Form.Control
+					type="number"
+					min="1"
+					value={mintAmount}
+					onChange={(e) => setMintAmount(e.target.value)} />
+			</Form.Group>
+			<Form.Group>
+				<Button 
+					variant="primary" 
+					type="submit"
+					style={{width: '100%'}}
+					disabled={!isWhitelisted}>
+					Mint
+				</Button>
+			</Form.Group>
+			{isWating && (
+				<div className="text-center">
+					<Spinner animation="border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</Spinner>
+				</div>
 			)}
 		</Form>
 	)

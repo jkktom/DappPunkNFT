@@ -28,6 +28,7 @@ function App() {
   const [cost, setCost] = useState(0)
   const [balance, setBalance] = useState(0)
   const [ownedTokenIds, setOwnedTokenIds] = useState([])
+  const [isWhitelisted, setIsWhitelisted] = useState(false)
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -63,8 +64,8 @@ function App() {
     setCost(await nft.cost())
     setBalance(await nft.balanceOf(account))
 
-    //call the function first (update whitelisting)
-    // make a separate whitelist.js 
+    const isWhitelisted = await nft.whitelist(account)
+    setIsWhitelisted(isWhitelisted)
 
     setIsLoading(false)
   }
@@ -126,6 +127,7 @@ function App() {
                 nft={nft}
                 cost={cost}
                 setIsLoading={setIsLoading}
+                isWhitelisted={isWhitelisted}
               />
             </Col>
           </Row>
@@ -136,24 +138,4 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
